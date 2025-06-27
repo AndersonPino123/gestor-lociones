@@ -42,3 +42,9 @@ Este proyecto fue desarrollado como parte de un plan de 30 días para aprender P
 ```bash
 python main.py
 ```
+
+👨‍💻 Autor
+
+Anderson Pino
+📫 anderson.pino2@gmail.com
+💼 LinkedIn https://www.linkedin.com/in/anderson-pino-a57700248/
