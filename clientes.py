@@ -16,9 +16,9 @@ def ver_clientes():
        
 def agregar_cliente():
  try:
-    nombre = input("Nombre: ").stripe() #.stripe elimina espacios vacíos y saltos de linea \n
-    correo = input("Correo: ").stripe()
-    edad = input("Edad: ").stripe()
+    nombre = input("Nombre: ").strip() #.strip elimina espacios vacíos y saltos de linea \n
+    correo = input("Correo: ").strip()
+    edad = input("Edad: ").strip()
     
     #validación
     if not nombre or not correo or not edad: #if not asegura que no este vacio
@@ -50,7 +50,7 @@ def agregar_cliente():
 def editar_cliente():
   try:
     ver_clientes()
-    id_cliente = input("ID del cliente a editar: ").stripe()
+    id_cliente = input("ID del cliente a editar: ").strip()
     
     if not id_cliente.isdigit():
       print("⚠️ Debe ingresar un número de ID válido.")
