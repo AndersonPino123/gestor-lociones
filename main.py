@@ -1,8 +1,9 @@
+from exportar_csv import exportar_compras_con_clientes
 from rich.console import Console
 from rich.table import Table
 
 # Importa tus funciones ya creadas
-from clientes import agregar_cliente, ver_clientes, editar_cliente, eliminar_cliente, desactivar_cliente
+from clientes import agregar_cliente, ver_clientes, editar_cliente, eliminar_cliente, desactivar_cliente, reactivar_cliente
 from compras import agregar_compra, ver_compras, editar_compra, eliminar_compra
 from reportes import reporte_compras_con_clientes, compras_por_cliente, resumen_compras_cliente, resumen_general_compras
 
@@ -28,7 +29,9 @@ def mostrar_menu():
     table.add_row("11", "Editar compra")
     table.add_row("12", "Eliminar compra")
     table.add_row("13", "Reporte completo de compras")
-    table.add_row("14", "Salir")
+    table.add_row("14", "Exportar compras a CSV")
+    table.add_row("15", "Reactivar cliente")
+    table.add_row("16", "Salir")
 
     console.print(table)
 
@@ -65,6 +68,10 @@ def menu():
         elif opcion == "13":
             reporte_compras_con_clientes()
         elif opcion == "14":
+            exportar_compras_con_clientes()
+        elif opcion == "15":
+            reactivar_cliente()
+        elif opcion == "16":
             console.print("👋 Hasta luego.", style="bold red")
             break
         else:
