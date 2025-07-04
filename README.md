@@ -1,50 +1,41 @@
-# 🧴 Gestor de Lociones
+# 🧴 Gestor de Lociones - Proyecto de Análisis y Gestión
 
-Sistema completo para la gestión de clientes, productos y compras de una empresa de lociones, usando **Python + PostgreSQL**.
+Este es un sistema completo para gestionar clientes, lociones y compras, pensado especialmente para microempresarios del sector cosmético. Permite realizar operaciones CRUD, registrar ventas, analizar datos y visualizar reportes desde cualquier dispositivo.
 
----
-
-## 🧠 Descripción
-
-Este proyecto fue desarrollado como parte de un plan de 30 días para aprender Python y bases de datos. Permite gestionar clientes, registrar compras, generar reportes y visualizar gráficas de los datos.
+Desarrollado por Anderson Pino como parte de un entrenamiento práctico en Python + PostgreSQL.
 
 ---
 
-## 🛠 Tecnologías utilizadas
+## 🌐 Accede a la aplicación
 
-- Python 3
-- PostgreSQL
-- psycopg2
-- SQLAlchemy (ORM)
-- matplotlib
-- pgAdmin 4
+➡️ [https://miperfumeria.streamlit.app/](https://miperfumeria.streamlit.app/)
 
 ---
 
-## 🔑 Funciones principales
+## 🚀 Tecnologías utilizadas
 
-- CRUD completo de clientes y compras
-- Activar/desactivar clientes
-- Reportes con INNER JOIN
-- Reportes visuales con gráficos de barras, torta y línea
-- Manejo de errores con `try/except`
-- Organización modular del código
+| Herramienta           | Función principal                                    |
+| --------------------- | ---------------------------------------------------- |
+| **Supabase**          | Base de datos PostgreSQL en la nube                  |
+| **Python**            | Lenguaje de programación principal                   |
+| **psycopg2**          | Conector entre Python y PostgreSQL                   |
+| **pandas**            | Análisis y manejo de datos con estructura tipo tabla |
+| **Streamlit**         | Construcción de la interfaz web para usuarios        |
+| **VS Code**           | Editor de código para desarrollar el proyecto        |
+| **Git + GitHub**      | Control de versiones y publicación del proyecto      |
+| **Rich** _(opcional)_ | Menú interactivo en la terminal local                |
 
 ---
 
-## ▶️ ¿Cómo ejecutar?
+## ✅ Funcionalidades
 
-1. Clona este repositorio
-2. Crea una base de datos en PostgreSQL llamada `gestor_contactos`
-3. Ajusta tu contraseña en el archivo de conexión
-4. Ejecuta el archivo `main.py` desde la terminal:
+- 📋 Ver lista de clientes y lociones
+- ➕ Agregar clientes o productos desde la web
+- ✏️ Editar o eliminar registros
+- 🛒 Registrar compras con fecha y valor
+- 📊 Filtrar compras por cliente o por fecha
+- 📈 Generar gráficas en tiempo real
+- 📁 Exportar reportes a `.csv` (abribles en Excel o Numbers)
+- 🌍 Acceso desde cualquier celular o computador
 
-```bash
-python main.py
-```
-
-👨‍💻 Autor
-
-Anderson Pino
-📫 anderson.pino2@gmail.com
-💼 LinkedIn https://www.linkedin.com/in/anderson-pino-a57700248/
+---
