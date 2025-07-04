@@ -5,13 +5,14 @@ import pandas as pd
 # Título
 st.title("🧴 Gestor de Lociones - Streamlit")
 
-# Conexión a PostgreSQL
+# Conexión a postgres
 def conectar():
     return psycopg2.connect(
-        host="localhost",
-        database="gestor_contactos",
+        host="db.bwahqgarvjgnqddxaxzu.supabase.co",
+        port=5432,
+        database="postgres",
         user="postgres",
-        password="1030622188"  # <- puedes ocultarlo con st.secrets más adelante
+        password="Skail.ska1993"
     )
 
 # Mostrar clientes
