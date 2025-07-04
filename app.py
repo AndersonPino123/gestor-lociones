@@ -7,16 +7,15 @@ st.title("🧴 Gestor de Lociones - Streamlit")
 
 # Conexión a postgres
 import streamlit as st
-
 def conectar():
     return psycopg2.connect(
-        host="db.bwahqgarvjgnqddxaxzu.supabase.co",
-        port=5432,
-        database="postgres",
-        user="postgres",
-        password="Skail.ska1993"
+        host=st.secrets["database"]["host"],
+        port=st.secrets["database"]["port"],
+        database=st.secrets["database"]["database"],
+        user=st.secrets["database"]["user"],
+        password=st.secrets["database"]["password"]
     )
-    
+           
 # Mostrar clientes
 def ver_clientes():
     conexion = conectar()
