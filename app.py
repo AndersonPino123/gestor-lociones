@@ -3,8 +3,17 @@ import psycopg2
 import pandas as pd
 from datetime import date
 
-st.title("🛍️ Catálogo de Lociones")
-
+          
+# ✅ Conexión usando secrets
+def conectar():
+    return psycopg2.connect(
+        host=st.secrets["database"]["host"],
+        port=st.secrets["database"]["port"],
+        database=st.secrets["database"]["database"],
+        user=st.secrets["database"]["user"],
+        password=st.secrets["database"]["password"]
+    )
+    
 def ver_catalogo():
     conexion = conectar()
     cursor = conexion.cursor()
@@ -17,6 +26,8 @@ def ver_catalogo():
     productos = cursor.fetchall()
     conexion.close()
     return productos
+
+st.title("🛍️ Catálogo de Lociones")
 
 productos = ver_catalogo()
 
@@ -36,17 +47,7 @@ for producto in productos:
             st.markdown(f"- 🧪 Cantidad: {cantidad} ml")
             st.markdown(f"- 💰 Precio: ${precio:,.0f}")
             st.markdown("---")
-            
-# ✅ Conexión usando secrets
-def conectar():
-    return psycopg2.connect(
-        host=st.secrets["database"]["host"],
-        port=st.secrets["database"]["port"],
-        database=st.secrets["database"]["database"],
-        user=st.secrets["database"]["user"],
-        password=st.secrets["database"]["password"]
-    )
-
+  
 # ✅ Función para mostrar clientes
 def ver_clientes():
     conexion = conectar()
