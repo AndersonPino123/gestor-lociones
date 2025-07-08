@@ -3,6 +3,40 @@ import psycopg2
 import pandas as pd
 from datetime import date
 
+st.title("🛍️ Catálogo de Lociones")
+
+def ver_catalogo():
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        SELECT nombre, fragancia, cantidad_ml, precio, disponible, imagen_url
+        FROM productos
+        WHERE disponible = true
+        ORDER BY nombre;
+    """)
+    productos = cursor.fetchall()
+    conexion.close()
+    return productos
+
+productos = ver_catalogo()
+
+for producto in productos:
+    nombre, fragancia, cantidad, precio, disponible, imagen_url = producto
+
+    with st.container():
+        cols = st.columns([1, 3])
+        with cols[0]:
+            if imagen_url:
+                st.image(imagen_url, width=120)
+            else:
+                st.image("https://via.placeholder.com/120", caption="Sin imagen")
+        with cols[1]:
+            st.markdown(f"### {nombre}")
+            st.markdown(f"- 🌸 Fragancia: {fragancia}")
+            st.markdown(f"- 🧪 Cantidad: {cantidad} ml")
+            st.markdown(f"- 💰 Precio: ${precio:,.0f}")
+            st.markdown("---")
+            
 # ✅ Conexión usando secrets
 def conectar():
     return psycopg2.connect(
