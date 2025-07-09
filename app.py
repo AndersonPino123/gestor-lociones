@@ -52,9 +52,14 @@ def ver_clientes():
 def ver_productos():
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("SELECT id, nombre, fragancia, cantidad_ml, precio, disponible, fecha_creacion FROM productos ORDER BY id")
+    cursor.execute("""
+        SELECT id, marca, nombre_producto, ref_proveedor, genero, fragancia,
+               cantidad_ml, precio, stock, disponible, fecha_creacion, imagen_url
+        FROM productos ORDER BY id
+    """)
     datos = cursor.fetchall()
-    columnas = ["ID", "Nombre", "Fragancia", "Cantidad (ml)", "Precio", "Disponible", "Fecha"]
+    columnas = ["ID", "Marca", "Nombre", "Referencia proveedor", "Género", "Fragancia",
+                "Cantidad (ml)", "Precio", "Stock", "Disponible", "Fecha", "Imagen"]
     df = pd.DataFrame(datos, columns=columnas)
     conexion.close()
     return df
