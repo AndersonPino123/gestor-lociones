@@ -23,7 +23,7 @@ def ver_catalogo(filtro):
             SELECT nombre_producto, fragancia, cantidad_ml, precio, disponible, imagen_url
             FROM productos
             WHERE disponible = true
-            ORDER BY nombre;
+            ORDER BY nombre_producto;
         """)
     else:
         cursor.execute("""
