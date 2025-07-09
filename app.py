@@ -3,7 +3,6 @@ import psycopg2
 import pandas as pd
 from datetime import date
 
-          
 # ✅ Conexión usando secrets
 def conectar():
     return psycopg2.connect(
@@ -13,7 +12,8 @@ def conectar():
         user=st.secrets["database"]["user"],
         password=st.secrets["database"]["password"]
     )
-    
+
+# ✅ Función para ver catálogo
 def ver_catalogo(filtro):
     conexion = conectar()
     cursor = conexion.cursor()
@@ -37,29 +37,6 @@ def ver_catalogo(filtro):
     conexion.close()
     return productos
 
-st.title("🛍️ Catálogo de Lociones")
-st.sidebar.markdown("## 🧴 Filtrar por género")
-filtro_genero = st.sidebar.selectbox("Selecciona:", ["Todos", "Femenino", "Masculino"])
-
-productos = ver_catalogo(filtro_genero)
-
-for producto in productos:
-    nombre, fragancia, cantidad, precio, disponible, imagen_url = producto
-
-    with st.container():
-        cols = st.columns([1, 3])
-        with cols[0]:
-            if imagen_url:
-                st.image(imagen_url, width=120)
-            else:
-                st.image("https://via.placeholder.com/120", caption="Sin imagen")
-        with cols[1]:
-            st.markdown(f"### {nombre}")
-            st.markdown(f"- 🌸 Fragancia: {fragancia}")
-            st.markdown(f"- 🧪 Cantidad: {cantidad} ml")
-            st.markdown(f"- 💰 Precio: ${precio:,.0f}")
-            st.markdown("---")
-  
 # ✅ Función para mostrar clientes
 def ver_clientes():
     conexion = conectar()
@@ -71,7 +48,7 @@ def ver_clientes():
     conexion.close()
     return df
 
-# ✅ Función para mostrar lociones
+# ✅ Función para mostrar lociones (modo admin)
 def ver_productos():
     conexion = conectar()
     cursor = conexion.cursor()
@@ -82,11 +59,36 @@ def ver_productos():
     conexion.close()
     return df
 
-# 🎯 Sidebar para navegar
-opcion = st.sidebar.selectbox("📂 Menú", ["Clientes", "Lociones"])
+# 🎯 Sidebar para navegación
+opcion = st.sidebar.selectbox("📂 Menú", ["Catálogo", "Clientes", "Lociones"])
 
-# ✅ CLIENTES
-if opcion == "Clientes":
+# 🛍️ CATÁLOGO DE LOCIONES (VISITANTES)
+if opcion == "Catálogo":
+    st.title("🛍️ Catálogo de Lociones")
+    st.sidebar.markdown("## 🧴 Filtrar por género")
+    filtro_genero = st.sidebar.selectbox("Selecciona:", ["Todos", "Femenino", "Masculino"])
+
+    productos = ver_catalogo(filtro_genero)
+
+    for producto in productos:
+        nombre, fragancia, cantidad, precio, disponible, imagen_url = producto
+
+        with st.container():
+            cols = st.columns([1, 3])
+            with cols[0]:
+                if imagen_url:
+                    st.image(imagen_url, width=120)
+                else:
+                    st.image("https://via.placeholder.com/120", caption="Sin imagen")
+            with cols[1]:
+                st.markdown(f"### {nombre}")
+                st.markdown(f"- 🌸 Fragancia: {fragancia}")
+                st.markdown(f"- 🧪 Cantidad: {cantidad} ml")
+                st.markdown(f"- 💰 Precio: ${precio:,.0f}")
+                st.markdown("---")
+
+# 👥 CLIENTES
+elif opcion == "Clientes":
     st.subheader("👥 Lista de Clientes")
     st.dataframe(ver_clientes(), use_container_width=True)
 
@@ -113,7 +115,7 @@ if opcion == "Clientes":
             except Exception as e:
                 st.error(f"❌ Error: {e}")
 
-# ✅ LOCIONES
+# 🧴 LOCIONES (modo administrador)
 elif opcion == "Lociones":
     st.subheader("🧴 Lista de Lociones")
     st.dataframe(ver_productos(), use_container_width=True)
