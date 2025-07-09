@@ -14,22 +14,34 @@ def conectar():
         password=st.secrets["database"]["password"]
     )
     
-def ver_catalogo():
+def ver_catalogo(filtro):
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("""
-        SELECT nombre, fragancia, cantidad_ml, precio, disponible, imagen_url
-        FROM productos
-        WHERE disponible = true
-        ORDER BY nombre;
-    """)
+
+    if filtro == "Todos":
+        cursor.execute("""
+            SELECT nombre, fragancia, cantidad_ml, precio, disponible, imagen_url
+            FROM productos
+            WHERE disponible = true
+            ORDER BY nombre;
+        """)
+    else:
+        cursor.execute("""
+            SELECT nombre, fragancia, cantidad_ml, precio, disponible, imagen_url
+            FROM productos
+            WHERE disponible = true AND genero = %s
+            ORDER BY nombre;
+        """, (filtro.lower(),))
+
     productos = cursor.fetchall()
     conexion.close()
     return productos
 
 st.title("🛍️ Catálogo de Lociones")
+st.sidebar.markdown("## 🧴 Filtrar por género")
+filtro_genero = st.sidebar.selectbox("Selecciona:", ["Todos", "Femenino", "Masculino"])
 
-productos = ver_catalogo()
+productos = ver_catalogo(filtro_genero)
 
 for producto in productos:
     nombre, fragancia, cantidad, precio, disponible, imagen_url = producto
