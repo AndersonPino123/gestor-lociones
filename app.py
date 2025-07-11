@@ -20,14 +20,14 @@ def ver_catalogo(filtro):
 
     if filtro == "Todos":
         cursor.execute("""
-            SELECT nombre_producto, fragancia, cantidad_ml, precio, disponible, imagen_url
+            SELECT marca, nombre_producto, fragancia, cantidad_ml, precio, disponible, imagen_url
             FROM productos
             WHERE disponible = true
             ORDER BY nombre_producto;
         """)
     else:
         cursor.execute("""
-            SELECT nombre_producto, fragancia, cantidad_ml, precio, disponible, imagen_url
+            SELECT marca, nombre_producto, fragancia, cantidad_ml, precio, disponible, imagen_url
             FROM productos
             WHERE disponible = true AND genero = %s
             ORDER BY nombre_producto;
@@ -36,6 +36,7 @@ def ver_catalogo(filtro):
     productos = cursor.fetchall()
     conexion.close()
     return productos
+
 
 # ✅ Función para mostrar clientes
 def ver_clientes():
@@ -76,7 +77,7 @@ if opcion == "Catálogo":
     productos = ver_catalogo(filtro_genero)
 
     for producto in productos:
-        nombre, fragancia, cantidad, precio, disponible, imagen_url = producto
+        marca, nombre, fragancia, cantidad, precio, disponible, imagen_url = producto
 
         with st.container():
             cols = st.columns([1, 3])
@@ -86,6 +87,7 @@ if opcion == "Catálogo":
                 else:
                     st.image("https://via.placeholder.com/120", caption="Sin imagen")
             with cols[1]:
+                st.markdown(f"#### 🏷️ Marca: {marca}")
                 st.markdown(f"### {nombre}")
                 st.markdown(f"- 🌸 Fragancia: {fragancia}")
                 st.markdown(f"- 🧪 Cantidad: {cantidad} ml")
