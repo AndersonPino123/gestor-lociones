@@ -65,6 +65,42 @@ def ver_productos():
     conexion.close()
     return df
 
+from usuarios.usuarios import registrar_usuario, iniciar_sesion
+
+st.sidebar.markdown("## 🔐 Iniciar sesión o registrarse")
+
+if "usuario" not in st.session_state:
+    st.session_state.usuario = None
+
+# Mostrar formulario
+if st.session_state.usuario is None:
+    opcion = st.sidebar.radio("¿Qué quieres hacer?", ["Iniciar sesión", "Registrarse"])
+
+    if opcion == "Iniciar sesión":
+        correo = st.sidebar.text_input("Correo", key="login_correo")
+        contrasena = st.sidebar.text_input("Contraseña", type="password", key="login_contra")
+        if st.sidebar.button("🔓 Iniciar sesión"):
+            usuario = iniciar_sesion(correo, contrasena)
+            if usuario:
+                st.success(f"¡Bienvenido, {usuario['nombre']}! 👋")
+                st.session_state.usuario = usuario
+            else:
+                st.error("Correo o contraseña incorrectos.")
+    else:
+        nombre = st.sidebar.text_input("Nombre", key="reg_nombre")
+        correo = st.sidebar.text_input("Correo", key="reg_correo")
+        contrasena = st.sidebar.text_input("Contraseña", type="password", key="reg_contra")
+        rol = st.sidebar.selectbox("Rol", ["cliente", "empleado", "administrador"])
+        if st.sidebar.button("📝 Registrarse"):
+            exito = registrar_usuario(nombre, correo, contrasena, rol)
+            if exito:
+                st.success("✅ Registro exitoso. Ahora inicia sesión.")
+else:
+    st.sidebar.success(f"Sesión activa: {st.session_state.usuario['nombre']} ({st.session_state.usuario['rol']})")
+    if st.sidebar.button("Cerrar sesión"):
+        st.session_state.usuario = None
+        st.rerun()
+
 # 🎯 Sidebar para navegación
 opcion = st.sidebar.selectbox("📂 Menú", ["Catálogo", "Clientes", "Lociones"])
 
