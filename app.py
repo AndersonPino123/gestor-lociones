@@ -20,14 +20,14 @@ def ver_catalogo(filtro):
 
     if filtro == "Todos":
         cursor.execute("""
-            SELECT marca, nombre_producto, fragancia, cantidad_ml, precio, disponible, imagen_url
+            SELECT nombre_producto, fragancia, cantidad_ml, precio, disponible, imagen_url
             FROM productos
-            WHERE disponible = truef
+            WHERE disponible = true
             ORDER BY nombre_producto;
         """)
     else:
         cursor.execute("""
-            SELECT marca, nombre_producto, fragancia, cantidad_ml, precio, disponible, imagen_url
+            SELECT nombre_producto, fragancia, cantidad_ml, precio, disponible, imagen_url
             FROM productos
             WHERE disponible = true AND genero = %s
             ORDER BY nombre_producto;
