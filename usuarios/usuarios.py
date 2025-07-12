@@ -2,6 +2,7 @@ import psycopg2
 import hashlib
 from datetime import date
 import streamlit as st
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Conexión a Supabase (desde secrets)
 def conectar():
