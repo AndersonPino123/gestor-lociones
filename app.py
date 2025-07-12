@@ -289,19 +289,6 @@ if menu == "Registrar compra" and st.session_state.usuario["rol"] in ["empleado"
         st.error(f"❌ Error al cargar clientes: {e}")
         cliente_id = None
 
-    # Obtener productos disponibles
-    productos_disponibles = obtener_productos_disponibles()
-    if productos_disponibles:
-        opciones = [
-            f"{id} - {marca} | {nombre} ({genero.capitalize()})"
-            for id, marca, nombre, genero in productos_disponibles
-        ]
-        seleccion = st.selectbox("Selecciona el producto comprado", opciones, key="producto_comprado")
-        producto = seleccion.split(" - ", 1)[1]  # Extrae texto como "Marca | Nombre (Genero)"
-    else:
-        st.warning("⚠️ No hay productos disponibles.")
-        producto = None
-
     valor = st.number_input("Valor del producto", min_value=0.0, step=1000.0)
 
     if st.button("💾 Guardar compra"):
@@ -322,7 +309,19 @@ if menu == "Registrar compra" and st.session_state.usuario["rol"] in ["empleado"
                 st.success("✅ Compra registrada con éxito.")
             except Exception as e:
                 st.error(f"❌ Error al registrar la compra: {e}")
-
+                
+ # Obtener productos disponibles
+    productos_disponibles = obtener_productos_disponibles()
+    if productos_disponibles:
+        opciones = [
+            f"{id} - {marca} | {nombre} ({genero.capitalize()})"
+            for id, marca, nombre, genero in productos_disponibles
+        ]
+        seleccion = st.selectbox("Selecciona el producto comprado", opciones, key="producto_comprado")
+        producto = seleccion.split(" - ", 1)[1]  # Extrae texto como "Marca | Nombre (Genero)"
+    else:
+        st.warning("⚠️ No hay productos disponibles.")
+        producto = None
 # -------------------- PANEL ADMINISTRADOR -------------------- #
 
 if menu == "Resumen de ventas":
