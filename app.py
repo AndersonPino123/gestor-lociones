@@ -96,10 +96,44 @@ if st.session_state.usuario is None:
             if exito:
                 st.success("✅ Registro exitoso. Ahora inicia sesión.")
 else:
-    st.sidebar.success(f"Sesión activa: {st.session_state.usuario['nombre']} ({st.session_state.usuario['rol']})")
-    if st.sidebar.button("Cerrar sesión"):
-        st.session_state.usuario = None
-        st.rerun()
+    usuario = st.session_state.usuario
+    st.sidebar.success(f"Sesión activa: {usuario['nombre']} ({usuario['rol']})")
+
+    if usuario["rol"] == "empleado":
+        opcion = st.sidebar.selectbox("📋 Menú empleado", ["Ver lociones", "Registrar cliente", "Registrar compra"])
+    elif usuario["rol"] == "administrador":
+        opcion = st.sidebar.selectbox("📋 Menú administrador", ["Ver lociones", "Registrar cliente", "Registrar compra", "Ver compras (admin)"])
+    else:
+        opcion = st.sidebar.selectbox("🛍️ Catálogo", ["Catálogo"])
+        
+if usuario["rol"] in ["empleado", "administrador"]:
+
+    if opcion == "Ver lociones":
+        st.subheader("🧴 Lociones disponibles")
+        st.dataframe(ver_productos(), use_container_width=True)
+
+    elif opcion == "Registrar cliente":
+        st.subheader("➕ Agregar nuevo cliente")
+
+        with st.form("form_nuevo_cliente"):
+            nombre = st.text_input("Nombre")
+            correo = st.text_input("Correo")
+            edad = st.number_input("Edad", min_value=0, max_value=120, step=1)
+            submit = st.form_submit_button("Guardar cliente")
+
+            if submit:
+                try:
+                    conexion = conectar()
+                    cursor = conexion.cursor()
+                    cursor.execute("""
+                        INSERT INTO clientes (nombre, correo, edad)
+                        VALUES (%s, %s, %s)
+                    """, (nombre.strip(), correo.strip(), edad))
+                    conexion.commit()
+                    conexion.close()
+                    st.success("✅ Cliente agregado con éxito.")
+                except Exception as e:
+                    st.error(f"❌ Error: {e}")
 
 # 🎯 Sidebar para navegación
 opcion = st.sidebar.selectbox("📂 Menú", ["Catálogo", "Clientes", "Lociones"])
