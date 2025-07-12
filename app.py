@@ -101,7 +101,7 @@ if productos_disponibles:
         f"{id} - {marca} | {nombre} ({genero.capitalize()})"
         for id, marca, nombre, genero in productos_disponibles
     ]
-    seleccion = st.selectbox("Selecciona el producto comprado", opciones)
+    seleccion = st.selectbox("Selecciona el producto comprado", opciones, key="producto_comprado")
     producto = seleccion.split(" - ", 1)[1]  # Esto toma el texto "Marca | Nombre (Genero)"
 else:
     st.warning("⚠️ No hay productos disponibles.")
@@ -296,7 +296,7 @@ if menu == "Registrar compra" and st.session_state.usuario["rol"] in ["empleado"
             f"{id} - {marca} | {nombre} ({genero.capitalize()})"
             for id, marca, nombre, genero in productos_disponibles
         ]
-        seleccion = st.selectbox("Selecciona el producto comprado", opciones)
+        seleccion = st.selectbox("Selecciona el producto comprado", opciones, key="producto_comprado")
         producto = seleccion.split(" - ", 1)[1]  # Extrae texto como "Marca | Nombre (Genero)"
     else:
         st.warning("⚠️ No hay productos disponibles.")
