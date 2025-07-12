@@ -76,6 +76,11 @@ def ver_productos():
                 "Cantidad (ml)", "Precio", "Stock", "Disponible", "Fecha", "Imagen"]
     return pd.DataFrame(datos, columns=columnas)
 
+def obtener_conexion_cursor():
+    conexion = conectar()
+    cursor = conexion.cursor()
+    return conexion, cursor
+
 # -------------------- AUTENTICACIÓN -------------------- #
 st.sidebar.markdown("## 🔐 Iniciar sesión o registrarse")
 if "usuario" not in st.session_state:
@@ -191,3 +196,94 @@ if menu == "Catálogo":
                 st.markdown(f"- 🧪 Cantidad: {cantidad} ml")
                 st.markdown(f"- 💰 Precio: ${precio:,.0f}")
                 st.markdown("---")
+                
+if menu == "Lociones":
+    st.title("🧴 Lista de Lociones")
+    df = ver_productos()
+    st.dataframe(df, use_container_width=True)
+
+    st.markdown("---")
+    st.subheader("➕ Agregar nueva loción")
+
+    with st.form("form_locion"):
+        marca = st.text_input("Marca")
+        nombre_producto = st.text_input("Nombre del producto")
+        ref_proveedor = st.text_input("Referencia con proveedor")
+        fragancia = st.text_input("Fragancia")
+        genero = st.selectbox("Género", ["femenino", "masculino"])
+        cantidad = st.number_input("Cantidad (ml)", min_value=10, step=10)
+        precio = st.number_input("Precio", min_value=0.0, step=1000.0)
+        stock = st.number_input("Stock", min_value=0, step=1)
+        disponible = st.checkbox("¿Disponible?", value=True)
+        imagen_url = st.text_input("URL de imagen (opcional)")
+
+        submit = st.form_submit_button("Guardar loción")
+
+        if submit:
+            try:
+                conexion = conectar()
+                cursor = conexion.cursor()
+                cursor.execute("""
+                    INSERT INTO productos (
+                        marca, nombre_producto, ref_proveedor, genero, fragancia,
+                        cantidad_ml, precio, stock, disponible, imagen_url, fecha_creacion
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_DATE)
+                """, (marca, nombre_producto, ref_proveedor, genero, fragancia,
+                      cantidad, precio, stock, disponible, imagen_url))
+                conexion.commit()
+                conexion.close()
+                st.success("✅ Loción agregada con éxito.")
+            except Exception as e:
+                st.error(f"❌ Error al guardar: {e}")
+                
+# -------------------- PANEL ADMINISTRADOR -------------------- #
+if menu == "Resumen de ventas":
+    st.title("📊 Resumen de ventas del mes")
+    try:
+        conexion, cursor = obtener_conexion_cursor()
+        cursor.execute("""
+            SELECT SUM(valor) FROM compras
+            WHERE DATE_PART('month', fecha) = DATE_PART('month', CURRENT_DATE)
+            AND DATE_PART('year', fecha) = DATE_PART('year', CURRENT_DATE);
+        """)
+        total = cursor.fetchone()[0] or 0
+        st.metric("💰 Total de ventas del mes", f"${total:,.0f}")
+        conexion.close()
+    except Exception as e:
+        st.error(f"❌ Error al obtener el resumen: {e}")
+
+elif menu == "Compras por cliente":
+    st.title("👥 Compras por Cliente")
+    try:
+        conexion, cursor = obtener_conexion_cursor()
+        cursor.execute("""
+            SELECT c.nombre, COUNT(co.id) AS cantidad, SUM(co.valor) AS total
+            FROM clientes c
+            JOIN compras co ON c.id = co.cliente_id
+            GROUP BY c.nombre
+            ORDER BY total DESC;
+        """)
+        resultados = cursor.fetchall()
+        df = pd.DataFrame(resultados, columns=["Cliente", "Compras", "Total gastado"])
+        st.dataframe(df, use_container_width=True)
+        conexion.close()
+    except Exception as e:
+        st.error(f"❌ Error al consultar compras por cliente: {e}")
+
+elif menu == "Gráfico de ventas":
+    st.title("📈 Gráfico de Ventas por Fecha")
+    try:
+        conexion, cursor = obtener_conexion_cursor()
+        cursor.execute("""
+            SELECT fecha, SUM(valor) AS total
+            FROM compras
+            GROUP BY fecha
+            ORDER BY fecha;
+        """)
+        datos = cursor.fetchall()
+        df = pd.DataFrame(datos, columns=["Fecha", "Total"])
+        df["Fecha"] = pd.to_datetime(df["Fecha"])
+        st.line_chart(df.set_index("Fecha"))
+        conexion.close()
+    except Exception as e:
+        st.error(f"❌ Error al generar el gráfico: {e}")
