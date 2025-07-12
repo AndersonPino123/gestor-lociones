@@ -1,10 +1,10 @@
+
 import streamlit as st
 import psycopg2
 import pandas as pd
 from datetime import date
 from usuarios.usuarios import registrar_usuario, iniciar_sesion
 
-# -------------------- CONEXIÓN -------------------- #
 def conectar():
     return psycopg2.connect(
         host=st.secrets["database"]["host"],
@@ -14,18 +14,10 @@ def conectar():
         password=st.secrets["database"]["password"]
     )
 
-# -------------------- FUNCIONES BÁSICAS -------------------- #
 def obtener_conexion_cursor():
     conexion = conectar()
     cursor = conexion.cursor()
     return conexion, cursor
-
-def obtener_productos_disponibles():
-    conexion, cursor = obtener_conexion_cursor()
-    cursor.execute("SELECT id, marca, nombre_producto, genero FROM productos WHERE disponible = true ORDER BY nombre_producto;")
-    datos = cursor.fetchall()
-    conexion.close()
-    return datos
 
 def obtener_clientes_activos():
     conexion, cursor = obtener_conexion_cursor()
@@ -34,7 +26,19 @@ def obtener_clientes_activos():
     conexion.close()
     return clientes
 
-# -------------------- AUTENTICACIÓN -------------------- #
+def obtener_productos_disponibles():
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        SELECT id, marca, nombre_producto, genero
+        FROM productos
+        WHERE disponible = true
+        ORDER BY nombre_producto
+    """)
+    productos = cursor.fetchall()
+    conexion.close()
+    return productos
+
 st.sidebar.markdown("## 🔐 Iniciar sesión o registrarse")
 if "usuario" not in st.session_state:
     st.session_state.usuario = None
@@ -67,78 +71,60 @@ else:
         st.session_state.usuario = None
         st.rerun()
 
-# -------------------- MENÚ -------------------- #
-menu = "Catálogo"
+# Menú lateral solo si está logueado
 if st.session_state.usuario:
     rol = st.session_state.usuario["rol"]
-    if rol == "administrador":
-        menu = st.sidebar.selectbox("🗂️ Navegación", [
-            "Catálogo", "Clientes", "Lociones", "Registrar compra",
-            "Resumen de ventas", "Compras por cliente", "Gráfico de ventas",
-            "Autorizar usuarios", "Gestionar roles"
-        ])
-    elif rol == "empleado":
-        menu = st.sidebar.selectbox("🗂️ Navegación", [
-            "Catálogo", "Clientes", "Registrar compra"
-        ])
+    if rol in ["administrador", "empleado"]:
+        st.sidebar.title("🗂️ Navegación")
+        opciones = ["Registrar compra"]
+        seleccion = st.sidebar.radio("Ir a:", opciones)
 
-# -------------------- CATÁLOGO -------------------- #
-if menu == "Catálogo":
+        if seleccion == "Registrar compra":
+            st.title("🛒 Registrar nueva compra")
+
+            clientes = obtener_clientes_activos()
+            if clientes:
+                lista = [f"{id} - {nombre}" for id, nombre in clientes]
+                seleccion_cliente = st.selectbox("Selecciona el cliente:", lista)
+                cliente_id = int(seleccion_cliente.split(" - ")[0])
+            else:
+                st.warning("⚠️ No hay clientes activos.")
+                cliente_id = None
+
+            productos = obtener_productos_disponibles()
+            if productos:
+                opciones = [
+                    f"{id} - {marca} | {nombre} ({genero.capitalize()})"
+                    for id, marca, nombre, genero in productos
+                ]
+                seleccion_prod = st.selectbox("Selecciona el producto comprado:", opciones)
+                producto = seleccion_prod.split(" - ", 1)[1]
+            else:
+                st.warning("⚠️ No hay productos disponibles.")
+                producto = None
+
+            valor = st.number_input("Valor del producto", min_value=0.0, step=1000.0)
+
+            if st.button("💾 Guardar compra"):
+                if not cliente_id:
+                    st.warning("Debes seleccionar un cliente válido.")
+                elif not producto:
+                    st.warning("Debes seleccionar un producto válido.")
+                else:
+                    try:
+                        conexion, cursor = obtener_conexion_cursor()
+                        cursor.execute(
+                            "INSERT INTO compras (cliente_id, producto, valor, fecha) VALUES (%s, %s, %s, CURRENT_DATE)",
+                            (cliente_id, producto, valor)
+                        )
+                        conexion.commit()
+                        conexion.close()
+                        st.success("✅ Compra registrada con éxito.")
+                    except Exception as e:
+                        st.error(f"❌ Error: {e}")
+    else:
+        st.title("🛍️ Catálogo de Lociones")
+        st.info("Aquí irá el catálogo para los clientes.")
+else:
     st.title("🛍️ Catálogo de Lociones")
-    filtro = st.sidebar.selectbox("Filtrar por género", ["Todos", "Femenino", "Masculino"])
-    conexion, cursor = obtener_conexion_cursor()
-    if filtro == "Todos":
-        cursor.execute("SELECT marca, nombre_producto, fragancia, cantidad_ml, precio, imagen_url FROM productos WHERE disponible = true")
-    else:
-        cursor.execute("SELECT marca, nombre_producto, fragancia, cantidad_ml, precio, imagen_url FROM productos WHERE disponible = true AND genero = %s", (filtro.lower(),))
-    productos = cursor.fetchall()
-    conexion.close()
-
-    for marca, nombre, fragancia, cantidad, precio, imagen_url in productos:
-        with st.container():
-            cols = st.columns([1, 3])
-            with cols[0]:
-                st.image(imagen_url or "https://via.placeholder.com/120", width=120)
-            with cols[1]:
-                st.markdown(f"### {nombre}")
-                st.markdown(f"**Marca:** {marca}")
-                st.markdown(f"**Fragancia:** {fragancia}")
-                st.markdown(f"**Cantidad:** {cantidad} ml")
-                st.markdown(f"**Precio:** ${precio:,.0f}")
-                st.markdown("---")
-
-# -------------------- REGISTRAR COMPRA -------------------- #
-if menu == "Registrar compra" and st.session_state.usuario["rol"] in ["empleado", "administrador"]:
-    st.title("🛒 Registrar nueva compra")
-    clientes = obtener_clientes_activos()
-    if clientes:
-        seleccion = st.selectbox("Selecciona el cliente:", [f"{id} - {nombre}" for id, nombre in clientes])
-        cliente_id = int(seleccion.split(" - ")[0])
-    else:
-        st.warning("⚠️ No hay clientes activos.")
-        cliente_id = None
-
-    productos_disponibles = obtener_productos_disponibles()
-    if productos_disponibles:
-        opciones = [f"{id} - {marca} | {nombre} ({genero})" for id, marca, nombre, genero in productos_disponibles]
-        seleccion_producto = st.selectbox("Selecciona el producto comprado", opciones)
-        producto = seleccion_producto.split(" - ", 1)[1]
-    else:
-        st.warning("⚠️ No hay productos disponibles.")
-        producto = None
-
-    valor = st.number_input("Valor del producto", min_value=0.0, step=1000.0)
-    if st.button("💾 Guardar compra"):
-        if not cliente_id:
-            st.warning("Selecciona un cliente válido.")
-        elif not producto:
-            st.warning("Selecciona un producto.")
-        else:
-            try:
-                conexion, cursor = obtener_conexion_cursor()
-                cursor.execute("INSERT INTO compras (cliente_id, producto, valor, fecha) VALUES (%s, %s, %s, CURRENT_DATE)", (cliente_id, producto, valor))
-                conexion.commit()
-                conexion.close()
-                st.success("✅ Compra registrada.")
-            except Exception as e:
-                st.error(f"❌ Error: {e}")
+    st.info("Aquí irá el catálogo para visitantes no registrados.")
