@@ -37,7 +37,6 @@ def ver_catalogo(filtro):
     conexion.close()
     return productos
 
-
 # ✅ Función para mostrar clientes
 def ver_clientes():
     conexion = conectar()
@@ -65,14 +64,15 @@ def ver_productos():
     conexion.close()
     return df
 
+# ✅ Importar funciones de usuarios
 from usuarios.usuarios import registrar_usuario, iniciar_sesion
 
+# 🔐 Iniciar sesión o registrarse
 st.sidebar.markdown("## 🔐 Iniciar sesión o registrarse")
 
 if "usuario" not in st.session_state:
     st.session_state.usuario = None
 
-# Mostrar formulario
 if st.session_state.usuario is None:
     opcion = st.sidebar.radio("¿Qué quieres hacer?", ["Iniciar sesión", "Registrarse"])
 
@@ -166,33 +166,33 @@ elif opcion == "Lociones":
     st.markdown("---")
     st.subheader("➕ Agregar nueva loción")
 
-with st.form("form_locion"):
-    marca = st.text_input("Marca")
-    nombre_producto = st.text_input("Nombre del producto")
-    ref_proveedor = st.text_input("Referencia con proveedor")
-    fragancia = st.text_input("Fragancia")
-    genero = st.selectbox("Género", ["femenino", "masculino"])
-    cantidad = st.number_input("Cantidad (ml)", min_value=10, step=10)
-    precio = st.number_input("Precio", min_value=0.0, step=1000.0)
-    stock = st.number_input("Stock", min_value=0, step=1)
-    disponible = st.checkbox("¿Disponible?", value=True)
-    imagen_url = st.text_input("URL de imagen (opcional)")
+    with st.form("form_locion"):
+        marca = st.text_input("Marca")
+        nombre_producto = st.text_input("Nombre del producto")
+        ref_proveedor = st.text_input("Referencia con proveedor")
+        fragancia = st.text_input("Fragancia")
+        genero = st.selectbox("Género", ["femenino", "masculino"])
+        cantidad = st.number_input("Cantidad (ml)", min_value=10, step=10)
+        precio = st.number_input("Precio", min_value=0.0, step=1000.0)
+        stock = st.number_input("Stock", min_value=0, step=1)
+        disponible = st.checkbox("¿Disponible?", value=True)
+        imagen_url = st.text_input("URL de imagen (opcional)")
 
-    submit = st.form_submit_button("Guardar loción")
+        submit = st.form_submit_button("Guardar loción")
 
-    if submit:
-        try:
-            conexion = conectar()
-            cursor = conexion.cursor()
-            cursor.execute("""
-                INSERT INTO productos (
-                    marca, nombre_producto, ref_proveedor, genero, fragancia,
-                    cantidad_ml, precio, stock, disponible, imagen_url, fecha_creacion
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_DATE)
-            """, (marca, nombre_producto, ref_proveedor, genero, fragancia,
-                  cantidad, precio, stock, disponible, imagen_url))
-            conexion.commit()
-            conexion.close()
-            st.success("✅ Loción agregada con éxito.")
-        except Exception as e:
-            st.error(f"❌ Error: {e}")
+        if submit:
+            try:
+                conexion = conectar()
+                cursor = conexion.cursor()
+                cursor.execute("""
+                    INSERT INTO productos (
+                        marca, nombre_producto, ref_proveedor, genero, fragancia,
+                        cantidad_ml, precio, stock, disponible, imagen_url, fecha_creacion
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_DATE)
+                """, (marca, nombre_producto, ref_proveedor, genero, fragancia,
+                      cantidad, precio, stock, disponible, imagen_url))
+                conexion.commit()
+                conexion.close()
+                st.success("✅ Loción agregada con éxito.")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
