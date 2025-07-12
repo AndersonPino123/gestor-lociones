@@ -1,9 +1,8 @@
 import psycopg2
-import streamlit as st
-from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import date
+import streamlit as st
 
-# -------------------- CONEXIÓN -------------------- #
 def conectar():
     return psycopg2.connect(
         host=st.secrets["database"]["host"],
@@ -13,24 +12,34 @@ def conectar():
         password=st.secrets["database"]["password"]
     )
 
-# -------------------- REGISTRAR USUARIO -------------------- #
-def registrar_usuario(nombre, correo, contrasena, rol="cliente"):
+def registrar_usuario(nombre, correo, contrasena, rol):
     try:
-        hash_pw = generate_password_hash(contrasena)
         conexion = conectar()
         cursor = conexion.cursor()
+        hash_pw = generate_password_hash(contrasena)
+
         cursor.execute("""
-            INSERT INTO usuarios (nombre, correo, contrasena, rol, autorizado, creado_en)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (nombre, correo, hash_pw, rol, True if rol == "cliente" else False, date.today()))
+            INSERT INTO usuarios (nombre, correo, contrasena, rol, creado_en)
+            VALUES (%s, %s, %s, %s, CURRENT_DATE)
+        """, (nombre, correo, hash_pw, rol))
         conexion.commit()
+
+        if rol == "cliente":
+            try:
+                cursor.execute("""
+                    INSERT INTO clientes (nombre, correo, edad, activo, creado_en)
+                    VALUES (%s, %s, %s, true, CURRENT_DATE)
+                """, (nombre, correo, 0))
+                conexion.commit()
+            except Exception as e:
+                st.error(f"❌ Error al crear el cliente: {e}")
+
         conexion.close()
         return True
     except Exception as e:
-        st.error(f"❌ Error al registrar usuario: {e}")
+        st.error(f"❌ Error al registrar: {e}")
         return False
 
-# -------------------- INICIAR SESIÓN -------------------- #
 def iniciar_sesion(correo, contrasena):
     try:
         conexion = conectar()
