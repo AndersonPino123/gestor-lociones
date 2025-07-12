@@ -128,8 +128,8 @@ if st.session_state.usuario:
 else:
     menu = st.sidebar.selectbox("🛍️ Menú Visitante", ["Catálogo"])
 
-# 👥 CLIENTES
-if menu == "Clientes":
+# 👥 CLIENTES (solo empleados y administradores)
+if menu == "Clientes" and st.session_state.usuario["rol"] in ["empleado", "administrador"]:
     st.title("👥 Gestión de Clientes")
     df = ver_clientes()
     st.dataframe(df, use_container_width=True)
@@ -178,7 +178,6 @@ if menu == "Clientes":
                     if st.button("✅ Activar", key=f"activar_{fila['ID']}"):
                         cambiar_estado_cliente(fila['ID'], True)
                         st.success("✅ Cliente activado. Recarga para ver reflejado.")
-
 # -------------------- SECCIONES -------------------- #
 if menu == "Catálogo":
     st.title("🛍️ Catálogo de Lociones")
@@ -197,7 +196,8 @@ if menu == "Catálogo":
                 st.markdown(f"- 💰 Precio: ${precio:,.0f}")
                 st.markdown("---")
                 
-if menu == "Lociones":
+# 🧴 LOCIONES (solo administradores)
+if menu == "Lociones" and st.session_state.usuario["rol"] == "administrador":
     st.title("🧴 Lista de Lociones")
     df = ver_productos()
     st.dataframe(df, use_container_width=True)
@@ -234,8 +234,7 @@ if menu == "Lociones":
                 conexion.close()
                 st.success("✅ Loción agregada con éxito.")
             except Exception as e:
-                st.error(f"❌ Error al guardar: {e}")
-                
+                st.error(f"❌ Error al guardar: {e}")      
 # -------------------- PANEL ADMINISTRADOR -------------------- #
 if menu == "Resumen de ventas":
     st.title("📊 Resumen de ventas del mes")
