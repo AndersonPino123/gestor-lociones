@@ -118,9 +118,11 @@ else:
 if st.session_state.usuario:
     rol = st.session_state.usuario["rol"]
     if rol == "administrador":
-        menu = st.sidebar.selectbox("⚙️ Menú Administrador", [
-            "Catálogo", "Clientes", "Lociones", "Registrar compra", "Resumen de ventas", "Compras por cliente", "Gráfico de ventas"
-        ])
+     menu = st.sidebar.selectbox("⚙️ Menú Administrador", [
+    "Catálogo", "Clientes", "Lociones", "Registrar compra",
+    "Resumen de ventas", "Compras por cliente", "Gráfico de ventas",
+    "Autorizar usuarios"  
+])
     elif rol == "empleado":
         menu = st.sidebar.selectbox("📋 Menú Empleado", [
             "Catálogo", "Clientes", "Registrar compra"
@@ -334,3 +336,37 @@ elif menu == "Gráfico de ventas":
         conexion.close()
     except Exception as e:
         st.error(f"❌ Error al generar el gráfico: {e}")
+        
+elif menu == "Autorizar usuarios":
+    st.title("🔐 Autorizar nuevos usuarios")
+
+    try:
+        conexion, cursor = obtener_conexion_cursor()
+        cursor.execute("""
+            SELECT id, nombre, correo, rol
+            FROM usuarios
+            WHERE autorizado = false AND rol IN ('empleado', 'administrador')
+            ORDER BY creado_en DESC;
+        """)
+        pendientes = cursor.fetchall()
+        conexion.close()
+
+        if pendientes:
+            for user in pendientes:
+                uid, nombre, correo, rol = user
+                with st.expander(f"{nombre} ({rol}) - {correo}"):
+                    if st.button(f"✅ Autorizar {nombre}", key=f"auth_{uid}"):
+                        try:
+                            conn2, cur2 = obtener_conexion_cursor()
+                            cur2.execute("UPDATE usuarios SET autorizado = true WHERE id = %s", (uid,))
+                            conn2.commit()
+                            conn2.close()
+                            st.success(f"✅ Usuario autorizado: {nombre}")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"❌ Error al autorizar: {e}")
+        else:
+            st.info("No hay usuarios pendientes por autorizar.")
+
+    except Exception as e:
+        st.error(f"❌ Error al cargar usuarios: {e}")
