@@ -119,10 +119,12 @@ if st.session_state.usuario:
     rol = st.session_state.usuario["rol"]
     if rol == "administrador":
         menu = st.sidebar.selectbox("⚙️ Menú Administrador", [
-            "Catálogo", "Clientes", "Lociones", "Resumen de ventas", "Compras por cliente", "Gráfico de ventas"
+            "Catálogo", "Clientes", "Lociones", "Registrar compra", "Resumen de ventas", "Compras por cliente", "Gráfico de ventas"
         ])
     elif rol == "empleado":
-        menu = st.sidebar.selectbox("📋 Menú Empleado", ["Catálogo", "Clientes", "Registrar compra"])
+        menu = st.sidebar.selectbox("📋 Menú Empleado", [
+            "Catálogo", "Clientes", "Registrar compra"
+        ])
     else:
         menu = st.sidebar.selectbox("🛍️ Menú Cliente", ["Catálogo"])
 else:
