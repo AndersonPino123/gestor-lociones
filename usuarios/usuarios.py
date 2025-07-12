@@ -22,7 +22,7 @@ def registrar_usuario(nombre, correo, contrasena, rol):
     try:
         conexion = conectar()
         cursor = conexion.cursor()
-        hash_pw = encriptar_contrasena(contrasena)
+        hash_pw = generate_password_hash(contrasena)  # ✔️ werkzeug
 
         cursor.execute("""
             INSERT INTO usuarios (nombre, correo, contrasena, rol, creado_en)
