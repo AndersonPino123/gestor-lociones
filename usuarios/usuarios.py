@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
 import streamlit as st
 
-# Conexión a Supabase (desde secrets)
+# ✅ Conexión usando secretos
 def conectar():
     return psycopg2.connect(
         host=st.secrets["database"]["host"],
@@ -13,16 +13,12 @@ def conectar():
         password=st.secrets["database"]["password"]
     )
 
-# Función para encriptar la contraseña con hashlib (SHA256)
-def encriptar_contrasena(contra):
-    return hashlib.sha256(contra.encode()).hexdigest()
-
-# Registrar nuevo usuario
+# ✅ Registrar nuevo usuario (cliente o pendiente de autorización)
 def registrar_usuario(nombre, correo, contrasena, rol):
     try:
         conexion = conectar()
         cursor = conexion.cursor()
-        hash_pw = generate_password_hash(contrasena)  # ✔️ werkzeug
+        hash_pw = generate_password_hash(contrasena)
 
         cursor.execute("""
             INSERT INTO usuarios (nombre, correo, contrasena, rol, creado_en)
@@ -36,7 +32,7 @@ def registrar_usuario(nombre, correo, contrasena, rol):
         st.error(f"❌ Error al registrar: {e}")
         return False
 
-# Iniciar sesión
+# ✅ Iniciar sesión con validación de rol autorizado
 def iniciar_sesion(correo, contrasena):
     try:
         conexion = conectar()
@@ -51,7 +47,11 @@ def iniciar_sesion(correo, contrasena):
 
         if usuario and check_password_hash(usuario[2], contrasena):
             if usuario[4] or usuario[3] == "cliente":
-                return {"id": usuario[0], "nombre": usuario[1], "rol": usuario[3]}
+                return {
+                    "id": usuario[0],
+                    "nombre": usuario[1],
+                    "rol": usuario[3]
+                }
             else:
                 st.warning("⚠️ Tu cuenta aún no ha sido autorizada por un administrador.")
                 return None
