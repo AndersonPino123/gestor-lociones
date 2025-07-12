@@ -82,12 +82,11 @@ def obtener_conexion_cursor():
     return conexion, cursor
 
 #Función para obtener los productos dispobibles
-
 def obtener_productos_disponibles():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
-        SELECT id, nombre_producto
+        SELECT id, marca, nombre_producto, genero
         FROM productos
         WHERE disponible = true
         ORDER BY nombre_producto
@@ -96,6 +95,17 @@ def obtener_productos_disponibles():
     conexion.close()
     return productos
 
+productos_disponibles = obtener_productos_disponibles()
+if productos_disponibles:
+    opciones = [
+        f"{id} - {marca} | {nombre} ({genero.capitalize()})"
+        for id, marca, nombre, genero in productos_disponibles
+    ]
+    seleccion = st.selectbox("Selecciona el producto comprado", opciones)
+    producto = seleccion.split(" - ", 1)[1]  # Esto toma el texto "Marca | Nombre (Genero)"
+else:
+    st.warning("⚠️ No hay productos disponibles.")
+    producto = None
 # -------------------- AUTENTICACIÓN -------------------- #
 st.sidebar.markdown("## 🔐 Iniciar sesión o registrarse")
 if "usuario" not in st.session_state:
@@ -269,8 +279,8 @@ if menu == "Registrar compra" and st.session_state.usuario["rol"] in ["empleado"
 
         if clientes:
             lista = [f"{id} - {nombre}" for id, nombre in clientes]
-            seleccion = st.selectbox("Selecciona el cliente:", lista)
-            cliente_id = int(seleccion.split(" - ")[0])
+            seleccion_cliente = st.selectbox("Selecciona el cliente:", lista)
+            cliente_id = int(seleccion_cliente.split(" - ")[0])
         else:
             st.warning("⚠️ No hay clientes activos para registrar compras.")
             cliente_id = None
@@ -279,35 +289,42 @@ if menu == "Registrar compra" and st.session_state.usuario["rol"] in ["empleado"
         st.error(f"❌ Error al cargar clientes: {e}")
         cliente_id = None
 
-        productos_disponibles = obtener_productos_disponibles()
-        if productos_disponibles:
-         nombres_productos = [nombre for _, nombre in productos_disponibles]
-        producto = st.selectbox("Selecciona el producto comprado", nombres_productos)
+    # Obtener productos disponibles
+    productos_disponibles = obtener_productos_disponibles()
+    if productos_disponibles:
+        opciones = [
+            f"{id} - {marca} | {nombre} ({genero.capitalize()})"
+            for id, marca, nombre, genero in productos_disponibles
+        ]
+        seleccion = st.selectbox("Selecciona el producto comprado", opciones)
+        producto = seleccion.split(" - ", 1)[1]  # Extrae texto como "Marca | Nombre (Genero)"
     else:
-     st.warning("⚠️ No hay productos disponibles.")
-    producto = None
-    
+        st.warning("⚠️ No hay productos disponibles.")
+        producto = None
+
     valor = st.number_input("Valor del producto", min_value=0.0, step=1000.0)
 
     if st.button("💾 Guardar compra"):
-     if not cliente_id:
-        st.warning("Debes seleccionar un cliente válido.")
-    elif not producto:
-        st.warning("Debes seleccionar un producto válido.")
-    else:
-        try:
-            conexion = conectar()
-            cursor = conexion.cursor()
-            cursor.execute("""
-                INSERT INTO compras (cliente_id, producto, valor, fecha)
-                VALUES (%s, %s, %s, CURRENT_DATE)
-            """, (cliente_id, producto, valor))
-            conexion.commit()
-            conexion.close()
-            st.success("✅ Compra registrada con éxito.")
-        except Exception as e:
-            st.error(f"❌ Error al registrar la compra: {e}")                 
+        if not cliente_id:
+            st.warning("Debes seleccionar un cliente válido.")
+        elif not producto:
+            st.warning("Debes seleccionar un producto válido.")
+        else:
+            try:
+                conexion = conectar()
+                cursor = conexion.cursor()
+                cursor.execute("""
+                    INSERT INTO compras (cliente_id, producto, valor, fecha)
+                    VALUES (%s, %s, %s, CURRENT_DATE)
+                """, (cliente_id, producto, valor))
+                conexion.commit()
+                conexion.close()
+                st.success("✅ Compra registrada con éxito.")
+            except Exception as e:
+                st.error(f"❌ Error al registrar la compra: {e}")
+
 # -------------------- PANEL ADMINISTRADOR -------------------- #
+
 if menu == "Resumen de ventas":
     st.title("📊 Resumen de ventas del mes")
     try:
