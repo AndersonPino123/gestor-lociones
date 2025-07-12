@@ -99,16 +99,18 @@ if st.session_state.usuario is None:
                 st.rerun()
             else:
                 st.error("Correo o contraseña incorrectos.")
-    else:
-        nombre = st.sidebar.text_input("Nombre", key="reg_nombre")
-        correo = st.sidebar.text_input("Correo", key="reg_correo")
-        contrasena = st.sidebar.text_input("Contraseña", type="password", key="reg_contra")
-        if st.sidebar.button("📝 Registrarse"):
-         rol = "cliente"  # 👈 Solo se permite rol 'cliente' desde el registro público
-        if registrar_usuario(nombre, correo, contrasena, rol):
-         st.success("✅ Registro exitoso. Ahora inicia sesión.")
 else:
-    usuario = st.session_state.usuario
+    nombre = st.sidebar.text_input("Nombre", key="reg_nombre")
+    correo = st.sidebar.text_input("Correo", key="reg_correo")
+    contrasena = st.sidebar.text_input("Contraseña", type="password", key="reg_contra")
+    
+    if st.sidebar.button("📝 Registrarse"):
+        rol = "cliente"  # 👈 Solo se permite rol 'cliente' desde el registro público
+        if registrar_usuario(nombre, correo, contrasena, rol):
+            st.success("✅ Registro exitoso. Ahora inicia sesión.")
+                    
+    else:
+     usuario = st.session_state.usuario
     st.sidebar.success(f"Sesión activa: {usuario['nombre']} ({usuario['rol']})")
     if st.sidebar.button("Cerrar sesión"):
         st.session_state.usuario = None
