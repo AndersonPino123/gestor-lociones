@@ -41,15 +41,22 @@ def iniciar_sesion(correo, contrasena):
     try:
         conexion = conectar()
         cursor = conexion.cursor()
-        cursor.execute("SELECT id, nombre, contrasena, rol FROM usuarios WHERE correo = %s", (correo,))
+        cursor.execute("""
+            SELECT id, nombre, contrasena, rol, autorizado
+            FROM usuarios
+            WHERE correo = %s
+        """, (correo,))
         usuario = cursor.fetchone()
         conexion.close()
 
-        if usuario:
-            hash_ingresado = encriptar_contrasena(contrasena)
-            if hash_ingresado == usuario[2]:
+        if usuario and check_password_hash(usuario[2], contrasena):
+            if usuario[4] or usuario[3] == "cliente":
                 return {"id": usuario[0], "nombre": usuario[1], "rol": usuario[3]}
-        return None
+            else:
+                st.warning("⚠️ Tu cuenta aún no ha sido autorizada por un administrador.")
+                return None
+        else:
+            return None
     except Exception as e:
         st.error(f"❌ Error al iniciar sesión: {e}")
         return None
