@@ -33,6 +33,11 @@ def registrar_usuario(nombre, correo, contrasena, rol):
         return False
 
 # ✅ Iniciar sesión con validación de rol autorizado
+import hashlib
+
+def encriptar_contrasena(contra):
+    return hashlib.sha256(contra.encode()).hexdigest()
+
 def iniciar_sesion(correo, contrasena):
     try:
         conexion = conectar()
@@ -45,13 +50,11 @@ def iniciar_sesion(correo, contrasena):
         usuario = cursor.fetchone()
         conexion.close()
 
-        if usuario and check_password_hash(usuario[2], contrasena):
+        hash_ingresada = encriptar_contrasena(contrasena)
+
+        if usuario and usuario[2] == hash_ingresada:
             if usuario[4] or usuario[3] == "cliente":
-                return {
-                    "id": usuario[0],
-                    "nombre": usuario[1],
-                    "rol": usuario[3]
-                }
+                return {"id": usuario[0], "nombre": usuario[1], "rol": usuario[3]}
             else:
                 st.warning("⚠️ Tu cuenta aún no ha sido autorizada por un administrador.")
                 return None
