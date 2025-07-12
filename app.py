@@ -121,7 +121,7 @@ if st.session_state.usuario:
      menu = st.sidebar.selectbox("⚙️ Menú Administrador", [
     "Catálogo", "Clientes", "Lociones", "Registrar compra",
     "Resumen de ventas", "Compras por cliente", "Gráfico de ventas",
-    "Autorizar usuarios"  
+    "Autorizar usuarios", "Gestionar roles"
 ])
     elif rol == "empleado":
         menu = st.sidebar.selectbox("📋 Menú Empleado", [
@@ -367,6 +367,47 @@ elif menu == "Autorizar usuarios":
                             st.error(f"❌ Error al autorizar: {e}")
         else:
             st.info("No hay usuarios pendientes por autorizar.")
+
+    except Exception as e:
+        st.error(f"❌ Error al cargar usuarios: {e}")
+        
+elif menu == "Gestionar roles":
+    st.title("🔁 Cambiar rol de usuarios")
+
+    try:
+        conexion, cursor = obtener_conexion_cursor()
+        cursor.execute("""
+            SELECT id, nombre, correo, rol
+            FROM usuarios
+            WHERE autorizado = true AND correo != %s
+            ORDER BY nombre
+        """, (st.session_state.usuario["nombre"],))  # Evita mostrarte a ti mismo
+
+        usuarios = cursor.fetchall()
+        conexion.close()
+
+        if usuarios:
+            for uid, nombre, correo, rol_actual in usuarios:
+                with st.expander(f"{nombre} - {correo}"):
+                    nuevo_rol = st.selectbox(
+                        "Selecciona el nuevo rol:",
+                        ["cliente", "empleado", "administrador"],
+                        index=["cliente", "empleado", "administrador"].index(rol_actual),
+                        key=f"rol_{uid}"
+                    )
+                    if nuevo_rol != rol_actual:
+                        if st.button("💾 Cambiar rol", key=f"guardar_rol_{uid}"):
+                            try:
+                                conn2, cur2 = obtener_conexion_cursor()
+                                cur2.execute("UPDATE usuarios SET rol = %s WHERE id = %s", (nuevo_rol, uid))
+                                conn2.commit()
+                                conn2.close()
+                                st.success(f"✅ Rol actualizado: {nombre} ahora es {nuevo_rol}.")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"❌ Error al cambiar rol: {e}")
+        else:
+            st.info("No hay usuarios autorizados (excepto tú).")
 
     except Exception as e:
         st.error(f"❌ Error al cargar usuarios: {e}")
