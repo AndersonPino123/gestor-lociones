@@ -81,6 +81,21 @@ def obtener_conexion_cursor():
     cursor = conexion.cursor()
     return conexion, cursor
 
+#Función para obtener los productos dispobibles
+
+def obtener_productos_disponibles():
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        SELECT id, nombre_producto
+        FROM productos
+        WHERE disponible = true
+        ORDER BY nombre_producto
+    """)
+    productos = cursor.fetchall()
+    conexion.close()
+    return productos
+
 # -------------------- AUTENTICACIÓN -------------------- #
 st.sidebar.markdown("## 🔐 Iniciar sesión o registrarse")
 if "usuario" not in st.session_state:
@@ -264,27 +279,34 @@ if menu == "Registrar compra" and st.session_state.usuario["rol"] in ["empleado"
         st.error(f"❌ Error al cargar clientes: {e}")
         cliente_id = None
 
-    producto = st.text_input("Nombre del producto comprado")
+        productos_disponibles = obtener_productos_disponibles()
+        if productos_disponibles:
+         nombres_productos = [nombre for _, nombre in productos_disponibles]
+        producto = st.selectbox("Selecciona el producto comprado", nombres_productos)
+    else:
+     st.warning("⚠️ No hay productos disponibles.")
+    producto = None
+    
     valor = st.number_input("Valor del producto", min_value=0.0, step=1000.0)
 
     if st.button("💾 Guardar compra"):
-        if not cliente_id:
-            st.warning("Debes seleccionar un cliente válido.")
-        elif not producto.strip():
-            st.warning("El nombre del producto es obligatorio.")
-        else:
-            try:
-                conexion = conectar()
-                cursor = conexion.cursor()
-                cursor.execute("""
-                    INSERT INTO compras (cliente_id, producto, valor, fecha)
-                    VALUES (%s, %s, %s, CURRENT_DATE)
-                """, (cliente_id, producto.strip(), valor))
-                conexion.commit()
-                conexion.close()
-                st.success("✅ Compra registrada con éxito.")
-            except Exception as e:
-                st.error(f"❌ Error al registrar la compra: {e}")                  
+     if not cliente_id:
+        st.warning("Debes seleccionar un cliente válido.")
+    elif not producto:
+        st.warning("Debes seleccionar un producto válido.")
+    else:
+        try:
+            conexion = conectar()
+            cursor = conexion.cursor()
+            cursor.execute("""
+                INSERT INTO compras (cliente_id, producto, valor, fecha)
+                VALUES (%s, %s, %s, CURRENT_DATE)
+            """, (cliente_id, producto, valor))
+            conexion.commit()
+            conexion.close()
+            st.success("✅ Compra registrada con éxito.")
+        except Exception as e:
+            st.error(f"❌ Error al registrar la compra: {e}")                 
 # -------------------- PANEL ADMINISTRADOR -------------------- #
 if menu == "Resumen de ventas":
     st.title("📊 Resumen de ventas del mes")
