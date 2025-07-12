@@ -135,6 +135,51 @@ if usuario["rol"] in ["empleado", "administrador"]:
                 except Exception as e:
                     st.error(f"❌ Error: {e}")
 
+    elif opcion == "Registrar compra":
+        st.subheader("🛒 Registrar nueva compra")
+
+        try:
+            # Obtenemos la lista de clientes disponibles
+            conexion = conectar()
+            cursor = conexion.cursor()
+            cursor.execute("SELECT id, nombre FROM clientes WHERE activo = true ORDER BY nombre")
+            clientes = cursor.fetchall()
+            conexion.close()
+
+            if clientes:
+                nombres = [f"{id} - {nombre}" for id, nombre in clientes]
+                seleccion = st.selectbox("Selecciona el cliente:", nombres)
+                cliente_id = int(seleccion.split(" - ")[0])
+            else:
+                st.warning("⚠️ No hay clientes activos para registrar compras.")
+                cliente_id = None
+
+        except Exception as e:
+            st.error(f"❌ Error al cargar los clientes: {e}")
+            cliente_id = None
+
+        producto = st.text_input("Nombre del producto comprado")
+        valor = st.number_input("Valor del producto", min_value=0.0, step=1000.0)
+
+        if st.button("Guardar compra"):
+            if not cliente_id:
+                st.warning("Debes seleccionar un cliente válido.")
+            elif not producto.strip():
+                st.warning("El nombre del producto es obligatorio.")
+            else:
+                try:
+                    conexion = conectar()
+                    cursor = conexion.cursor()
+                    cursor.execute("""
+                        INSERT INTO compras (cliente_id, producto, valor, fecha)
+                        VALUES (%s, %s, %s, CURRENT_DATE)
+                    """, (cliente_id, producto.strip(), valor))
+                    conexion.commit()
+                    conexion.close()
+                    st.success("✅ Compra registrada con éxito.")
+                except Exception as e:
+                    st.error(f"❌ Error al registrar compra: {e}")
+
 # 🎯 Sidebar para navegación
 opcion = st.sidebar.selectbox("📂 Menú", ["Catálogo", "Clientes", "Lociones"])
 
