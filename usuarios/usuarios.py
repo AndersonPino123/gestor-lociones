@@ -18,24 +18,42 @@ def encriptar_contrasena(contra):
     return hashlib.sha256(contra.encode()).hexdigest()
 
 # Registrar nuevo usuario
+import re  # 👈 Para validar el correo (si no está ya arriba)
+
+# Registrar nuevo usuario (con validaciones)
 def registrar_usuario(nombre, correo, contrasena, rol):
     try:
+        # Validar correo con expresión regular simple
+        patron_correo = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not re.match(patron_correo, correo):
+            st.warning("⚠️ El correo ingresado no es válido.")
+            return False
+
         conexion = conectar()
         cursor = conexion.cursor()
-        hash_pw = encriptar_contrasena(contrasena)
 
+        # Verificar si ya existe ese correo
+        cursor.execute("SELECT id FROM usuarios WHERE correo = %s", (correo,))
+        if cursor.fetchone():
+            st.warning("⚠️ Ya existe una cuenta registrada con ese correo.")
+            conexion.close()
+            return False
+
+        # Si todo está bien, encriptar y registrar
+        hash_pw = encriptar_contrasena(contrasena)
         cursor.execute("""
             INSERT INTO usuarios (nombre, correo, contrasena, rol, creado_en)
             VALUES (%s, %s, %s, %s, %s)
-        """, (nombre, correo, hash_pw, rol, date.today()))
+        """, (nombre.strip(), correo.strip(), hash_pw, rol, date.today()))
 
         conexion.commit()
         conexion.close()
         return True
+
     except Exception as e:
         st.error(f"❌ Error al registrar: {e}")
         return False
-
+    
 # Iniciar sesión
 def iniciar_sesion(correo, contrasena):
     try:
