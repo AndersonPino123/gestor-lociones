@@ -62,61 +62,6 @@ def cambiar_estado_cliente(id_cliente, nuevo_estado):
     conexion.commit()
     conexion.close()
 
-# 🎯 Sidebar para navegación
-opcion = st.sidebar.selectbox("📂 Menú", ["Clientes"])
-
-# 👥 CLIENTES
-if opcion == "Clientes":
-    st.title("👥 Gestión de Clientes")
-    df = ver_clientes()
-    st.dataframe(df, use_container_width=True)
-
-    with st.expander("➕ Agregar nuevo cliente"):
-        with st.form("form_cliente"):
-            nombre = st.text_input("Nombre")
-            correo = st.text_input("Correo")
-            edad = st.number_input("Edad", min_value=0, max_value=120, step=1)
-            submit = st.form_submit_button("Guardar")
-
-            if submit:
-                try:
-                    conexion = conectar()
-                    cursor = conexion.cursor()
-                    cursor.execute("""
-                        INSERT INTO clientes (nombre, correo, edad)
-                        VALUES (%s, %s, %s)
-                    """, (nombre.strip(), correo.strip(), edad))
-                    conexion.commit()
-                    conexion.close()
-                    st.success("✅ Cliente agregado con éxito.")
-                except Exception as e:
-                    st.error(f"❌ Error: {e}")
-
-    st.markdown("---")
-    st.subheader("✏️ Editar o cambiar estado de clientes")
-
-    for _, fila in df.iterrows():
-        with st.expander(f"👤 {fila['Nombre']} ({'Activo' if fila['Activo'] else 'Inactivo'})"):
-            nuevo_nombre = st.text_input("Nombre", fila["Nombre"], key=f"nombre_{fila['ID']}")
-            nuevo_correo = st.text_input("Correo", fila["Correo"], key=f"correo_{fila['ID']}")
-            nueva_edad = st.number_input("Edad", value=fila["Edad"], min_value=0, max_value=120, step=1, key=f"edad_{fila['ID']}")
-
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("💾 Guardar cambios", key=f"guardar_{fila['ID']}"):
-                    actualizar_cliente(fila['ID'], nuevo_nombre, nuevo_correo, nueva_edad)
-                    st.success("✅ Cambios guardados. Recarga para ver reflejado.")
-            with col2:
-                if fila['Activo']:
-                    if st.button("🚫 Desactivar", key=f"desactivar_{fila['ID']}"):
-                        cambiar_estado_cliente(fila['ID'], False)
-                        st.warning("⚠️ Cliente desactivado. Recarga para ver reflejado.")
-                else:
-                    if st.button("✅ Activar", key=f"activar_{fila['ID']}"):
-                        cambiar_estado_cliente(fila['ID'], True)
-                        st.success("✅ Cliente activado. Recarga para ver reflejado.")
-
-
 def ver_productos():
     conexion = conectar()
     cursor = conexion.cursor()
@@ -177,6 +122,57 @@ if st.session_state.usuario:
         menu = st.sidebar.selectbox("🛍️ Menú Cliente", ["Catálogo"])
 else:
     menu = st.sidebar.selectbox("🛍️ Menú Visitante", ["Catálogo"])
+
+# 👥 CLIENTES
+if menu == "Clientes":
+    st.title("👥 Gestión de Clientes")
+    df = ver_clientes()
+    st.dataframe(df, use_container_width=True)
+
+    with st.expander("➕ Agregar nuevo cliente"):
+        with st.form("form_cliente"):
+            nombre = st.text_input("Nombre")
+            correo = st.text_input("Correo")
+            edad = st.number_input("Edad", min_value=0, max_value=120, step=1)
+            submit = st.form_submit_button("Guardar")
+
+            if submit:
+                try:
+                    conexion = conectar()
+                    cursor = conexion.cursor()
+                    cursor.execute("""
+                        INSERT INTO clientes (nombre, correo, edad)
+                        VALUES (%s, %s, %s)
+                    """, (nombre.strip(), correo.strip(), edad))
+                    conexion.commit()
+                    conexion.close()
+                    st.success("✅ Cliente agregado con éxito.")
+                except Exception as e:
+                    st.error(f"❌ Error: {e}")
+
+    st.markdown("---")
+    st.subheader("✏️ Editar o cambiar estado de clientes")
+
+    for _, fila in df.iterrows():
+        with st.expander(f"👤 {fila['Nombre']} ({'Activo' if fila['Activo'] else 'Inactivo'})"):
+            nuevo_nombre = st.text_input("Nombre", fila["Nombre"], key=f"nombre_{fila['ID']}")
+            nuevo_correo = st.text_input("Correo", fila["Correo"], key=f"correo_{fila['ID']}")
+            nueva_edad = st.number_input("Edad", value=fila["Edad"], min_value=0, max_value=120, step=1, key=f"edad_{fila['ID']}")
+
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("💾 Guardar cambios", key=f"guardar_{fila['ID']}"):
+                    actualizar_cliente(fila['ID'], nuevo_nombre, nuevo_correo, nueva_edad)
+                    st.success("✅ Cambios guardados. Recarga para ver reflejado.")
+            with col2:
+                if fila['Activo']:
+                    if st.button("🚫 Desactivar", key=f"desactivar_{fila['ID']}"):
+                        cambiar_estado_cliente(fila['ID'], False)
+                        st.warning("⚠️ Cliente desactivado. Recarga para ver reflejado.")
+                else:
+                    if st.button("✅ Activar", key=f"activar_{fila['ID']}"):
+                        cambiar_estado_cliente(fila['ID'], True)
+                        st.success("✅ Cliente activado. Recarga para ver reflejado.")
 
 # -------------------- SECCIONES -------------------- #
 if menu == "Catálogo":
