@@ -1,0 +1,26 @@
+from database.connection import conectar
+
+def ver_clientes():
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT id, nombre, correo, edad, activo, creado_en FROM clientes ORDER BY id")
+    datos = cursor.fetchall()
+    conexion.close()
+    return datos
+
+def actualizar_cliente(id_cliente, nuevo_nombre, nuevo_correo, nueva_edad):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        UPDATE clientes SET nombre=%s, correo=%s, edad=%s
+        WHERE id=%s
+    """, (nuevo_nombre, nuevo_correo, nueva_edad, id_cliente))
+    conexion.commit()
+    conexion.close()
+
+def cambiar_estado_cliente(id_cliente, nuevo_estado):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("UPDATE clientes SET activo=%s WHERE id=%s", (nuevo_estado, id_cliente))
+    conexion.commit()
+    conexion.close()
