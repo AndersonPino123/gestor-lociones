@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 from modules.clientes import ver_clientes, agregar_cliente, actualizar_cliente, cambiar_estado_cliente
 
-def mostrar_clientes():
+def mostrar_gestion_clientes():
     st.title("👥 Gestión de Clientes")
 
     # Mostrar tabla de clientes
