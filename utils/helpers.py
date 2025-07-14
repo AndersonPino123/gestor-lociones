@@ -1,29 +1,34 @@
 # utils/helpers.py
 
-import psycopg2
 import streamlit as st
 
-# Función para conectar a la base de datos
+def mostrar_mensaje_exito(mensaje: str):
+    st.success(f"✅ {mensaje}")
 
-def conectar():
-    return psycopg2.connect(
-        host=st.secrets["database"]["host"],
-        port=st.secrets["database"]["port"],
-        database=st.secrets["database"]["database"],
-        user=st.secrets["database"]["user"],
-        password=st.secrets["database"]["password"]
-    )
+def mostrar_mensaje_error(error: Exception, mensaje="Se produjo un error."):
+    st.error(f"❌ {mensaje}: {error}")
 
-# Función para obtener productos disponibles (para combos, compras, etc.)
-def obtener_productos_disponibles():
-    conexion = conectar()
-    cursor = conexion.cursor()
-    cursor.execute("""
-        SELECT id, marca, nombre_producto, genero
-        FROM productos
-        WHERE disponible = true
-        ORDER BY nombre_producto
-    """)
-    productos = cursor.fetchall()
-    conexion.close()
-    return productos
+def mostrar_mensaje_advertencia(mensaje: str):
+    st.warning(f"⚠️ {mensaje}")
+
+def formatear_moneda(valor):
+    """Formatea un valor numérico como moneda colombiana."""
+    return f"${valor:,.0f}".replace(",", ".")
+
+def parsear_id_desde_texto(texto: str):
+    """
+    Recibe algo como '5 - Juan Pérez' y devuelve 5 como int.
+    """
+    try:
+        return int(texto.split(" - ")[0])
+    except (IndexError, ValueError):
+        return None
+
+def parsear_producto_desde_texto(texto: str):
+    """
+    Recibe algo como '3 - Adidas | Pure Game (masculino)' y devuelve 'Adidas | Pure Game (masculino)'.
+    """
+    try:
+        return texto.split(" - ", 1)[1]
+    except IndexError:
+        return texto
