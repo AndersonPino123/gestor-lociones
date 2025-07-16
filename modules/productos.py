@@ -1,6 +1,7 @@
 # modules/productos.py
 
 import psycopg2
+import pandas as pd
 from database.connection import conectar
 
 # ✅ Obtener todos los productos (para vista de administrador)
@@ -42,14 +43,15 @@ def obtener_productos_disponibles():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("""
-        SELECT id, marca, nombre_producto, genero
-        FROM productos
-        WHERE disponible = true
-        ORDER BY nombre_producto
+        SELECT id, marca, nombre_producto, ref_proveedor, genero, fragancia,
+               cantidad_ml, precio, stock, disponible, fecha_creacion, imagen_url
+        FROM productos ORDER BY id
     """)
-    productos = cursor.fetchall()
+    datos = cursor.fetchall()
     conexion.close()
-    return productos
+    columnas = ["ID", "Marca", "Nombre", "Referencia proveedor", "Género", "Fragancia",
+                "Cantidad (ml)", "Precio", "Stock", "Disponible", "Fecha", "Imagen"]
+    return pd.DataFrame(datos, columns=columnas)
 
 # ✅ Catálogo filtrado para visitantes/clientes
 def obtener_catalogo(filtro):
