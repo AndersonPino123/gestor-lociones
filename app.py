@@ -2,17 +2,17 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 
-from auth.auth import registrar_usuario, iniciar_sesion
+from auth.usuarios import registrar_usuario, iniciar_sesion
 from database.connection import obtener_conexion_cursor
 from views.menu import mostrar_menu_visitante, mostrar_menu_usuario
-from views.catalogo import mostrar_catalogo
-from views.clientes import mostrar_gestion_clientes
-from views.lociones import mostrar_gestion_lociones
-from views.compras import mostrar_registro_compra
+from views.catalogo_view import mostrar_catalogo
+from views.clientes_view import mostrar_gestion_clientes
+from views.lociones_view import mostrar_gestion_lociones
+from views.compras_view import mostrar_registro_compra
 from views.panel_admin import mostrar_resumen_ventas, mostrar_compras_por_cliente
 from views.graficos import mostrar_grafico_lineas
-from views.autorizaciones import mostrar_autorizacion_usuarios
-from views.roles import mostrar_gestion_roles
+from views.autorizacion_view import mostrar_autorizacion_usuarios
+from views.roles_view import mostrar_gestion_roles
 
 # -------------------- AUTENTICACIÓN -------------------- #
 st.sidebar.markdown("## 🔐 Iniciar sesión o registrarse")
