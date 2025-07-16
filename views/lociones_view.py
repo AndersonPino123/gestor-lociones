@@ -2,13 +2,13 @@
 
 import streamlit as st
 import pandas as pd
-from modules.productos import obtener_productos, agregar_locion
+from modules.productos import obtener_productos_disponibles, agregar_locion
 
 def mostrar_gestion_lociones():
     st.title("🧴 Lista de Lociones")
     
     # Mostrar lociones en tabla
-    df = obtener_productos()
+    df = obtener_productos_disponibles()
     if not df.empty:
         st.dataframe(df, use_container_width=True)
     else:
