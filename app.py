@@ -66,7 +66,7 @@ elif menu == "Lociones":
     mostrar_gestion_lociones()
 
 elif menu == "Registrar compra":
-    mostrar_registro_compra()
+    mostrar_registro_compra()##
 
 elif menu == "Resumen de ventas":
     mostrar_resumen_ventas()
