@@ -24,3 +24,18 @@ def cambiar_estado_cliente(id_cliente, nuevo_estado):
     cursor.execute("UPDATE clientes SET activo=%s WHERE id=%s", (nuevo_estado, id_cliente))
     conexion.commit()
     conexion.close()
+    
+def agregar_cliente(nombre, correo, edad):
+    try:
+        conexion = conectar()
+        cursor = conexion.cursor()
+        cursor.execute("""
+            INSERT INTO clientes (nombre, correo, edad)
+            VALUES (%s, %s, %s)
+        """, (nombre, correo, edad))
+        conexion.commit()
+        conexion.close()
+        return True
+    except Exception as e:
+        print("❌ Error al agregar cliente:", e)
+        return False
