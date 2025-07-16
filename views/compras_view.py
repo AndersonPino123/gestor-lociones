@@ -1,4 +1,4 @@
-# views/compras_view.py
+# archivo views/compras_view.py
 
 import streamlit as st
 from modules.clientes import obtener_clientes_activos
