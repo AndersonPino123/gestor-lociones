@@ -1,4 +1,5 @@
 # archivo modules/clientes.py
+import pandas as pd
 from database.connection import conectar
 
 def ver_clientes():
@@ -6,8 +7,9 @@ def ver_clientes():
     cursor = conexion.cursor()
     cursor.execute("SELECT id, nombre, correo, edad, activo, creado_en FROM clientes ORDER BY id")
     datos = cursor.fetchall()
+    columnas = ["ID", "Nombre", "Correo", "Edad", "Activo", "Creado en"]
     conexion.close()
-    return datos
+    return pd.DataFrame(datos, columns=columnas)
 
 def actualizar_cliente(id_cliente, nuevo_nombre, nuevo_correo, nueva_edad):
     conexion = conectar()
