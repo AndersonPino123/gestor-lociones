@@ -31,8 +31,8 @@ def mostrar_gestion_clientes():
     st.subheader("✏️ Editar o cambiar estado de clientes")
 
     # Mostrar formulario para cada cliente
-for _, fila in df.iterrows():
-    with st.expander(f"👤 {fila['Nombre']} ({'Activo' if fila['Activo'] else 'Inactivo'})"):
+    for _, fila in df.iterrows():
+     with st.expander(f"👤 {fila['Nombre']} ({'Activo' if fila['Activo'] else 'Inactivo'})"):
         nuevo_nombre = st.text_input("Nombre", fila["Nombre"], key=f"nombre_{fila['ID']}")
         nuevo_correo = st.text_input("Correo", fila["Correo"], key=f"correo_{fila['ID']}")
         nueva_edad = st.number_input("Edad", value=fila["Edad"], min_value=0, max_value=120, step=1, key=f"edad_{fila['ID']}")
