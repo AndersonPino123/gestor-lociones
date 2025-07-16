@@ -24,8 +24,11 @@ def mostrar_registro_compra():
         st.warning("⚠️ No hay productos disponibles.")
         return
 
-    lista_productos = [f"{id} - {marca} | {nombre} ({genero.capitalize()})"
-                       for id, marca, nombre, genero in productos]
+    lista_productos = [
+        f"{id} - {marca} | {nombre} ({genero.capitalize()})"
+       for id, marca, nombre, genero in productos
+    ]
+    
     seleccion_producto = st.selectbox("Selecciona el producto comprado:", lista_productos)
     producto_nombre = seleccion_producto.split(" - ", 1)[1]  # Extrae la parte "Marca | Nombre (Género)"
 
