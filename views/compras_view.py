@@ -1,4 +1,4 @@
-# archivo views/compras_view.py
+# views/compras_view.py
 
 import streamlit as st
 from modules.clientes import obtener_clientes_activos
@@ -20,7 +20,7 @@ def mostrar_registro_compra():
 
     # Obtener productos disponibles
     productos = obtener_productos_disponibles()
-    if not productos:
+    if productos.empty:
         st.warning("⚠️ No hay productos disponibles.")
         return
 
