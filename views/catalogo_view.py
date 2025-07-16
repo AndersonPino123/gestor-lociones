@@ -10,7 +10,7 @@ def mostrar_catalogo():
     productos = obtener_catalogo(filtro_genero)
 
     if productos:
-        for marca, nombre, fragancia, cantidad, precio, _, imagen_url in productos:
+        for marca, nombre, fragancia, cantidad, precio, imagen_url in productos:
             with st.container():
                 cols = st.columns([1, 3])
                 with cols[0]:
