@@ -1,3 +1,4 @@
+# archivo modules/clientes.py
 from database.connection import conectar
 
 def ver_clientes():
@@ -39,3 +40,11 @@ def agregar_cliente(nombre, correo, edad):
     except Exception as e:
         print("❌ Error al agregar cliente:", e)
         return False
+
+def obtener_clientes_activos():
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT id, nombre FROM clientes WHERE activo = true ORDER BY nombre")
+    datos = cursor.fetchall()
+    conexion.close()
+    return datos
