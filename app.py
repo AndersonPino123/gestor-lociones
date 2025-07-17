@@ -25,7 +25,9 @@ if st.session_state.usuario is None:
     opcion = st.sidebar.radio("¿Qué quieres hacer?", ["Iniciar sesión", "Registrarse"])
     if opcion == "Iniciar sesión":
         correo = st.sidebar.text_input("Correo", key="login_correo")
-        contrasena = st.sidebar.text_input("Contraseña", type="password", key="login_contra")
+        contrasena = st.sidebar.text_input(
+            "Contraseña", type="password", key="login_contra"
+        )
         if st.sidebar.button("🔓 Iniciar sesión"):
             usuario = iniciar_sesion(correo, contrasena)
             if usuario:
@@ -37,7 +39,9 @@ if st.session_state.usuario is None:
     else:
         nombre = st.sidebar.text_input("Nombre", key="reg_nombre")
         correo = st.sidebar.text_input("Correo", key="reg_correo")
-        contrasena = st.sidebar.text_input("Contraseña", type="password", key="reg_contra")
+        contrasena = st.sidebar.text_input(
+            "Contraseña", type="password", key="reg_contra"
+        )
         if st.sidebar.button("📝 Registrarse"):
             rol = "cliente"
             if registrar_usuario(nombre, correo, contrasena, rol):
@@ -66,7 +70,7 @@ elif menu == "Lociones":
     mostrar_gestion_lociones()
 
 elif menu == "Registrar compra":
-    mostrar_registro_compra()##
+    mostrar_registro_compra()  ##
 
 elif menu == "Resumen de ventas":
     mostrar_resumen_ventas()
@@ -81,4 +85,4 @@ elif menu == "Autorizar usuarios":
     mostrar_autorizacion_usuarios()
 
 elif menu == "Gestionar roles":
-    mostrar_gestion_roles()
+    mostrar_gestion_roles(st.session_state.usuario)  ##
