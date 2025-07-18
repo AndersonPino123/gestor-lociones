@@ -104,7 +104,7 @@ Desarrollado por Anderson Rengifo con la ayuda de ChatGPT como copiloto técnico
 
 📬 Contacto
 
-Si quieres mejorar esta app o colaborar, puedes escribirme a: anderson…@correo.com (ajusta con tu correo real)
+Si quieres mejorar esta app o colaborar, puedes escribirme a: anderson.pino2@gmail.com
 
 ⸻
 
